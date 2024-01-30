@@ -2,37 +2,45 @@ import React, { useContext, useState } from 'react';
 import { AppContext } from '../context/AppContext';
 
 const Budget = () => {
-    const { budget } = useContext(AppContext);
-    const [newBudget, setNewBudget] = useState(budget);
-    const [currency, setCurrency] = useState('$');
+    const { Budget, expenses, Currency, dispatch } = useContext(AppContext);
 
-    const handleBudgetChange = (event) => {
-        setNewBudget(event.target.value);
+    const changeBudget = (val)=>{
+
+        const totalSpent = expenses.reduce((total, item) => {
+            return (total += item.allocatedBoudget);
+        }, 0);
+
+        val = parseInt(val);
+        if(val > 20000)
+        {
+            alert('The value can not be more than 20,000');
+        }
+        if(val <= totalSpent)
+        {
+            alert('You cannot reduce the budget value lower than the spending');
+        }
+        else
+        {
+            dispatch({
+                type: 'CHG_BUDGET',
+                payload: parseInt(val),
+            })
+        }
     }
-
-    const handleCurrencyChange = (event) => {
-        setCurrency(event.target.value);
-    }
-
-    const selectStyle = {
-        width: '100%',
-        padding: '10px',
-        border: 'none',
-        borderRadius: '4px',
-        backgroundColor: '#f1f1f1',
-    };
 
     return (
-        <div className='alert alert-secondary'>
-            <span>Budget: {currency}{budget}</span>
-            <input type="number" step="10" value={newBudget} onChange={handleBudgetChange}></input>
-            <label for="currency">Currency:</label>
-            <select id="currency" name="currency" onChange={handleCurrencyChange} style={selectStyle}>
-                <option value="$">$ Dollar</option>
-                <option value="£">£ Pound</option>
-                <option value="€">€ Euro</option>
-                <option value="₹">₹ Rupee</option>
-            </select>
+        <div className='alert alert-secondary' style={{'display': 'flex', 'flexDirection':'row'}}>
+            <span>Budget:{Currency} </span>
+            <input
+                required='required'
+                type='number'
+                id='budget'
+                value={Budget}
+                style={{size: 10}}
+                step='10'
+                max='20000'
+                onChange={event=>changeBudget(event.target.value)}>
+                </input>
         </div>
     );
 };
